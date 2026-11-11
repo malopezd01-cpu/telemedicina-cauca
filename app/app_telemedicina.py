@@ -151,10 +151,10 @@ class App(ctk.CTk):
             est.theme_use("clam")
         except Exception:
             pass
-        est.configure("Treeview", rowheight=30, font=("Helvetica", 12),
+        est.configure("Treeview", rowheight=38, font=("Helvetica", 15),
                       background=CARD, fieldbackground=CARD, borderwidth=0)
-        est.configure("Treeview.Heading", font=("Helvetica", 12, "bold"),
-                      background=AZUL, foreground="white", relief="flat", padding=6)
+        est.configure("Treeview.Heading", font=("Helvetica", 15, "bold"),
+                      background=AZUL, foreground="white", relief="flat", padding=8)
         est.map("Treeview.Heading", background=[("active", AZUL)])
         est.map("Treeview", background=[("selected", VERDE)],
                 foreground=[("selected", "white")])
@@ -715,9 +715,9 @@ class App(ctk.CTk):
         if self.col_doc:
             cols.append("doc"); enc["doc"] = "Documento"
             anchos["doc"] = 110; src["doc"] = self.col_doc
-        for c, t, a, f in [("especialidad", "Especialidad", 180, "especialidad"),
-                           ("actividad", "Tipo de cita", 240, "actividad"),
-                           ("tele", "Telemedicina", 150, "clasificacion")]:
+        for c, t, a, f in [("especialidad", "Especialidad", 230, "especialidad"),
+                           ("actividad", "Tipo de cita", 270, "actividad"),
+                           ("tele", "Telemedicina", 170, "clasificacion")]:
             cols.append(c); enc[c] = t; anchos[c] = a; src[c] = f
 
         self.tabla_clasif.configure(columns=cols)
