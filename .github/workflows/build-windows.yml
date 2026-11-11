@@ -1,0 +1,39 @@
+name: Construir TelemedicinaCauca (.exe Windows)
+
+# Se ejecuta en cada push a main y también se puede lanzar a mano
+# (pestaña Actions -> este workflow -> "Run workflow").
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        shell: cmd
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller customtkinter pandas matplotlib openpyxl pillow
+
+      - name: Crear el .exe con PyInstaller
+        shell: cmd
+        working-directory: app
+        run: pyinstaller --noconsole --onefile --name "TelemedicinaCauca" --collect-all customtkinter --collect-all matplotlib --collect-all openpyxl --hidden-import PIL._tkinter_finder --add-data "logo_telecauca.png;." --add-data "citas_anonimizado.csv;." --add-data "distancias_municipios.csv;." app_telemedicina.py
+
+      - name: Guardar el .exe como artefacto descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: TelemedicinaCauca-Windows
+          path: app/dist/TelemedicinaCauca.exe
+          if-no-files-found: error

@@ -1,0 +1,17 @@
+# PyInstaller / build
+build/
+dist/
+*.spec
+
+# Python
+__pycache__/
+*.pyc
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IMPORTANTE: nunca subir datos reales del hospital con información personal
+# (nombres, cédulas, teléfonos, diagnósticos). Solo datos anonimizados.
+*_real*.xlsx
+*incumpl*.xlsx
