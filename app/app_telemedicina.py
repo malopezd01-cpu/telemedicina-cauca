@@ -13,6 +13,7 @@
 import os
 import sys
 import unicodedata
+from datetime import date
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
@@ -63,6 +64,20 @@ VALOR_CONSULTA = 40000   # valor estimado que recibe el hospital por consulta
                          # (CAMBIAR por el valor real que indique el hospital)
 CO2_POR_KM     = 0.12    # kg de CO2 por km (vehiculo de pasajeros promedio)
                          # para estimar la contaminacion que se evita al no viajar
+
+# ---------------------------------------------------------------------
+#  LICENCIA (vigencia de 1 año) - CAMBIAR la fecha para renovar
+# ---------------------------------------------------------------------
+LICENCIA_HASTA = date(2027, 11, 11)   # la app avisa cuando pase esta fecha
+
+_MESES_ES = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio",
+             "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+def fecha_larga(f):
+    """date(2027,11,11) -> '11 de noviembre de 2027'"""
+    return f"{f.day} de {_MESES_ES[f.month]} de {f.year}"
+
 
 NO_APTAS = ["TERAPIA", "ELECTRO", "RADIOLOG", "RX", "TAC", "RESONANC",
             "ECOCARDIO", "HOLTER", "PROCEDIMIENTO", "IMAGEN",
@@ -143,6 +158,73 @@ class App(ctk.CTk):
         self._tabs()
         self._pie()
         self._cargar_automatico()
+        self._pantalla_bienvenida()
+
+    # -----------------------------------------------------------------
+    def _pantalla_bienvenida(self):
+        """Pantalla de inicio (splash): logo, nombre y vigencia de la licencia.
+        Cubre toda la ventana hasta que el usuario presiona 'Entrar'."""
+        vencida = date.today() > LICENCIA_HASTA
+
+        self._overlay = ctk.CTkFrame(self, fg_color=AZUL, corner_radius=0)
+        self._overlay.place(x=0, y=0, relwidth=1, relheight=1)
+
+        centro = ctk.CTkFrame(self._overlay, fg_color="transparent")
+        centro.place(relx=0.5, rely=0.5, anchor="center")
+
+        ruta_logo = ruta_recurso("logo_telecauca.png")
+        if os.path.exists(ruta_logo):
+            try:
+                from PIL import Image
+                img = Image.open(ruta_logo)
+                self._logo_inicio = ctk.CTkImage(light_image=img, dark_image=img,
+                                                 size=(120, 120))
+                ctk.CTkLabel(centro, image=self._logo_inicio, text="").pack(
+                    pady=(0, 16))
+            except Exception:
+                pass
+
+        ctk.CTkLabel(centro, text="TelemedicinaCauca", text_color="white",
+                     font=ctk.CTkFont(size=38, weight="bold")).pack()
+        ctk.CTkLabel(centro,
+                     text="Hospital Universitario San José  ·  Telemedicina",
+                     text_color="#C7D6EA",
+                     font=ctk.CTkFont(size=16)).pack(pady=(4, 24))
+
+        caja = ctk.CTkFrame(centro, fg_color="#15305A", corner_radius=12)
+        caja.pack(pady=(0, 26), ipadx=24, ipady=14)
+        if not vencida:
+            ctk.CTkLabel(caja, text="🔓  Licencia vigente",
+                         text_color=VERDE_SU,
+                         font=ctk.CTkFont(size=15, weight="bold")).pack()
+            ctk.CTkLabel(caja, text="hasta el " + fecha_larga(LICENCIA_HASTA),
+                         text_color="white",
+                         font=ctk.CTkFont(size=14)).pack(pady=(2, 0))
+            texto_boton = "Entrar  ▶"
+        else:
+            ctk.CTkLabel(caja, text="🔒  Licencia vencida",
+                         text_color="#FFD9CF",
+                         font=ctk.CTkFont(size=15, weight="bold")).pack()
+            ctk.CTkLabel(caja,
+                         text="Venció el " + fecha_larga(LICENCIA_HASTA)
+                              + ". Contacte al desarrollador para renovar.",
+                         text_color="white", wraplength=360,
+                         font=ctk.CTkFont(size=13)).pack(pady=(2, 0))
+            texto_boton = "Entrar de todas formas  ▶"
+
+        ctk.CTkButton(centro, text=texto_boton, command=self._entrar,
+                      fg_color=VERDE, hover_color="#228377",
+                      corner_radius=12, height=46, width=220,
+                      font=ctk.CTkFont(size=16, weight="bold")).pack()
+
+        ctk.CTkLabel(centro, text="Hecho para el Hospital Universitario San José",
+                     text_color="#8FA6C4",
+                     font=ctk.CTkFont(size=11)).pack(pady=(22, 0))
+
+    def _entrar(self):
+        if getattr(self, "_overlay", None) is not None:
+            self._overlay.destroy()
+            self._overlay = None
 
     # -----------------------------------------------------------------
     def _estilo_treeview(self):
